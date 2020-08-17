@@ -10,11 +10,11 @@ GAME RULES
 // Game values
 let min = 1,
     max = 10,
-    winningNo = 2, // will be random later
+    winningNo = getRandomNum(min,max), // will be random later
     guessesLeft = 3;
 
 // UI Elements
-const gameUI = document.querySelector('#game'),
+const gameWrapper = document.querySelector('#game'),
       minNum = document.querySelector('.min-num'),
       maxNum = document.querySelector('.max-num'),
       guessBtn = document.querySelector('#guess-btn'),
@@ -28,7 +28,13 @@ maxNum.textContent = max;
 // Listen for guess
 guessBtn.addEventListener('click', guessEvent);
 
-// Create Guess Event
+// Play again listener
+gameWrapper.addEventListener('mousedown', playAgainEvent)
+
+function getRandomNum(min, max){
+  return Math.floor(Math.random()*(max-min+1)+min);
+}
+
 function guessEvent(){
   let guess = parseInt(guessInput.value);
   
@@ -39,27 +45,17 @@ function guessEvent(){
 
   // check if won
   if(guess === winningNo){
-    // Disable input
-    guessInput.disabled = true;
-    guessBtn.disabled = true;
-    // Change border color
-    guessInput.style.borderColor = 'green';
-    // Set Message
-    setMessage(`${winningNo} is correct!, You Win`, 'green');
+    // Game over - WON
+    gameOver(true,`${winningNo} is correct!, You Win!`)
+    
   } else {
     // Wrong number
     guessesLeft -= 1;
     // Check if guess left
     if(guessesLeft === 0){
-      //Game Over
-      // Disable input
-      guessInput.disabled = true;
-      guessBtn.disabled = true;
-      // Change border color
-      guessInput.style.borderColor = 'red';
-      // Set Message
-      setMessage(`Game Over... The right answer was ${winningNo}`, 'red');
-
+      //Game Over - Lot
+      gameOver(false, `Game Over... The right answer was ${winningNo}`)
+      
     } else {
       // Game continues
       // Change borde color
@@ -76,12 +72,30 @@ function guessEvent(){
   }
 }
 
-function gameOver(won,msg){
-  
+function playAgainEvent(e){
+  if(e.target.className === 'play-again'){
+    window.location.reload();
+  }
 }
 
+function gameOver(won,msg){
+  let color;
+  won === true ? color = 'green' : color = 'red';
 
-// Set message
+  // Disable input
+  guessInput.disabled = true;
+
+  // Change border & Text color
+  guessInput.style.borderColor = color;
+  // Set Message
+  setMessage(msg, color);
+  
+  // Play Again
+  guessBtn.value = 'Play Again';
+  guessBtn.className += 'play-again'
+
+}
+
 function setMessage(msg, color){
   message.style.color = color;
   message.textContent = msg;
